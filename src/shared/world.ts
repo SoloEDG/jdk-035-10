@@ -9,6 +9,24 @@ export interface GuardRoute {
   readonly points: readonly Cell[];
 }
 
+/** 周期闸门：回合 t 开窗当且仅当 (t - phase) mod period < window */
+export interface GateDef {
+  readonly id: string;
+  readonly label: string;
+  readonly cell: Cell;
+  readonly period: number;
+  readonly window: number;
+  readonly phase: number;
+}
+
+/** 旁侧踏板：被踩后把指定闸门的开窗相位后移 shift，自下一拍起生效 */
+export interface PedalDef {
+  readonly id: string;
+  readonly cell: Cell;
+  readonly gateId: string;
+  readonly shift: number;
+}
+
 export interface Level {
   readonly name: string;
   readonly columns: number;
@@ -18,6 +36,8 @@ export interface Level {
   readonly objective: Cell;
   readonly exit: Cell;
   readonly routes: readonly GuardRoute[];
+  readonly gates: readonly GateDef[];
+  readonly pedals: readonly PedalDef[];
 }
 
 export type Stance = "crouch" | "walk" | "dash";

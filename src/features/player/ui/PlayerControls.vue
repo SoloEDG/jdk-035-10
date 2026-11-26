@@ -4,7 +4,7 @@ import type { Command, Stance } from "@/shared/world";
 import type { Actor } from "../model/actor";
 import { stances } from "../model/stances";
 
-defineProps<{ actor: Actor; finished: boolean }>();
+defineProps<{ actor: Actor; finished: boolean; hint: Command | null }>();
 const emit = defineEmits<{ command: [Command]; stance: [Stance] }>();
 const options = [
   { id: "crouch", icon: Footprints, key: "1" },
@@ -31,10 +31,12 @@ const moves = [
     <fieldset class="movement-group" :disabled="finished">
       <legend class="sr-only">角色行动</legend>
       <button v-for="move in moves" :key="move.direction" type="button" :title="move.label" :aria-label="move.label"
+        :class="{ hinted: hint?.type === 'move' && hint.direction === move.direction }"
         @click="emit('command', { type: 'move', direction: move.direction })">
         <component :is="move.icon" :size="17" />
       </button>
-      <button type="button" class="wait-button" @click="emit('command', { type: 'wait' })" title="等待一回合 (.)">
+      <button type="button" class="wait-button" :class="{ hinted: hint?.type === 'wait' }" title="等待一回合 (.)"
+        @click="emit('command', { type: 'wait' })">
         <Timer :size="16" />等待
       </button>
     </fieldset>

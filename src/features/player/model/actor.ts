@@ -1,4 +1,4 @@
-import { addCell, directions, sameCell, type Cell, type Direction } from "@/shared/grid";
+import { addCell, cellKey, directions, sameCell, type Cell, type Direction } from "@/shared/grid";
 import type { Command, Footstep, Level, Stance } from "@/shared/world";
 import { isWalkable, terrainAt, terrainRules } from "@/features/map";
 import { stances } from "./stances";
@@ -19,7 +19,8 @@ export function createActor(start: Cell): Actor {
   return { cell: start, facing: "east", stance: "crouch" };
 }
 
-export function resolveCommand(level: Level, actor: Actor, command: Command, occupied: readonly Cell[]): Movement | null {
+export function resolveCommand(level: Level, actor: Actor, command: Command, occupied: readonly Cell[],
+  blocked: ReadonlySet<string> = new Set()): Movement | null {
   if (command.type === "wait") return { actor, crossed: [], footsteps: [] };
   const stance = stances[actor.stance];
   const crossed: Cell[] = [];
@@ -27,7 +28,7 @@ export function resolveCommand(level: Level, actor: Actor, command: Command, occ
   let cell = actor.cell;
   for (let step = 0; step < stance.stride; step++) {
     const next = addCell(cell, directions[command.direction]);
-    if (!isWalkable(level, next)) break;
+    if (!isWalkable(level, next) || blocked.has(cellKey(next))) break;
     cell = next;
     crossed.push(cell);
     const volume = Math.max(0, stance.volume + terrainRules[terrainAt(level, cell)].noise);
